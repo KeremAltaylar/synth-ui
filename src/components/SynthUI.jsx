@@ -27,6 +27,7 @@ export default function SynthUI() {
   const pressedKeysRef = useRef(new Set());
   const currentAmpRef = useRef(0);
   const prevFreq = useRef(0);
+  const midiHeldNotesRef = useRef(new Set());
 
   const [attack, setAttack] = useState(0.1);
   const [decay, setDecay] = useState(0.1);
@@ -155,6 +156,7 @@ export default function SynthUI() {
           oscRef.current.freq(freq, 0.05);
         } else {
           oscRef.current.freq(freq, 0.01);
+          oscRef.current.amp(0, 0.001);
           oscRef.current.amp(sustain, attack);
         }
         prevFreq.current = freq;
@@ -175,12 +177,17 @@ export default function SynthUI() {
       if (gateMode) {
         if (pressedKeys.size === 0) {
           oscRef.current.amp(0, release);
+          oscRef.current.amp(0, 0.0001);
           currentAmpRef.current = 0;
         } else {
           const lastKey = Array.from(pressedKeys).slice(-1)[0];
           const keyInfo = getKeyInfo(lastKey);
           const freq = rootFreq * scale[keyInfo.index] * Math.pow(2, octave + keyInfo.octaveShift - 4);
           oscRef.current.freq(freq, 0.05);
+          oscRef.current.amp(0, release);
+
+          oscRef.current.amp(0, 0.0001);
+
           prevFreq.current = freq;
         }
       }
@@ -206,10 +213,83 @@ export default function SynthUI() {
     }, 150);
     return () => clearInterval(interval);
   }, [gateMode, sustain]);
+  
+  useEffect(() => {
+    if (!navigator.requestMIDIAccess) {
+      console.warn("Web MIDI API not supported in this browser.");
+      return;
+    }
+  
+    navigator.requestMIDIAccess().then((midiAccess) => {
+      const onMIDIMessage = (event) => {
+        const held = midiHeldNotesRef.current;
+        const [status, note, velocity] = event.data;
+        const command = status & 0xf0;
+        const freq = 440 * Math.pow(2, (note - 69) / 12);
+  
+        if (command === 0x90 && velocity > 0) {
+          // Note On
+          held.add(note);
+  
+          if (gateMode) {
+            if (held.size > 1) {
+              // Legato glide
+              oscRef.current.freq(freq, 0.03);
+            } else {
+              // From silence: fade in cleanly
+              if (currentAmpRef.current === 0) {
+                oscRef.current.amp(0, 0); // Reset amp
+                oscRef.current.freq(freq, 0.01);
+                const safeAttack = attack < 0.03 ? 0.03 : attack;
+                oscRef.current.amp(0, 0.0001);
+
+                oscRef.current.amp(sustain, safeAttack);
+              } else {
+                oscRef.current.freq(freq, 0.01);
+              }
+            }
+            currentAmpRef.current = sustain;
+          } else {
+            oscRef.current.freq(freq);
+            envRef.current.play();
+          }
+  
+          prevFreq.current = freq;
+  
+        } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+          // Note Off
+          held.delete(note);
+  
+          if (gateMode) {
+            if (held.size === 0) {
+              const safeRelease = release < 0.03 ? 0.03 : release;
+              oscRef.current.amp(0, safeRelease);
+              currentAmpRef.current = 0;
+            } else {
+              const lastNote = Array.from(held).slice(-1)[0];
+              const newFreq = 440 * Math.pow(2, (lastNote - 69) / 12);
+              oscRef.current.freq(newFreq, 0.03);
+              prevFreq.current = newFreq;
+            }
+          }
+        }
+      };
+  
+      for (let input of midiAccess.inputs.values()) {
+        input.onmidimessage = onMIDIMessage;
+      }
+    }).catch((err) => {
+      console.error("MIDI access error", err);
+    });
+  }, [gateMode, attack, release, sustain]);
+  
+  
+  
+  
 
   return (
     <div className="p-6 max-w-xl mx-auto space-y-6 text-white bg-black min-h-screen">
-      <h1 className="text-2xl font-bold text-yellow-300">Simple Synth</h1>
+      <h1 className="text-2xl font-bold text-yellow-300">MonoSynth VMI003</h1>
 
       {!audioStarted && (
         <button
