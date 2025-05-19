@@ -126,7 +126,6 @@ export default function SynthUI() {
         reverbRef.current.process(delayRef.current, reverbTime, reverbDecay);
         reverbRef.current.process(distortionRef.current, reverbTime, reverbDecay);
         reverbRef.current.process(oscRef.current, reverbTime, reverbDecay);
-        reverbRef.current.amp(2);
         reverbRef.current.drywet(reverbDryWet);
 
         fftRef.current = new p5.FFT();

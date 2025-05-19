@@ -6,23 +6,23 @@ export default function SynthUI() {
 
   // Define scales using frequency ratios relative to the root
   const scales = {
-    major: [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 15 / 8], // 1, M2, M3, P4, P5, M6, M7
-    naturalMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5], // 1, M2, m3, P4, P5, m6, m7
-    harmonicMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 15 / 8], // 1, M2, m3, P4, P5, m6, M7
-    melodicMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 5 / 3, 15 / 8], // 1, M2, m3, P4, P5, M6, M7 (Ascending, simplified)
-    dorian: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 5 / 3, 9 / 5], // 1, M2, m3, P4, P5, M6, m7
-    phrygian: [1, 16 / 15, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5], // 1, m2, m3, P4, P5, m6, m7
-    lydian: [1, 9 / 8, 5 / 4, 45 / 32, 3 / 2, 5 / 3, 15 / 8], // 1, M2, M3, A4, P5, M6, M7
-    mixolydian: [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 9 / 5], // 1, M2, M3, P4, P5, M6, m7
-    aeolian: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5], // Same as Natural Minor
-    locrian: [1, 16 / 15, 6 / 5, 4 / 3, 64 / 45, 8 / 5, 9 / 5], // 1, m2, m3, P4, d5, m6, m7
+    major: [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 15 / 8, 2, 9 / 4, 5 / 2],
+    naturalMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2, 9 / 4, 12 / 5],
+    harmonicMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 15 / 8, 2, 9 / 4, 12 / 5],
+    melodicMinor: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 5 / 3, 15 / 8, 2, 9 / 4, 12 / 5],
+    dorian: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 5 / 3, 9 / 5, 2, 9 / 4, 12 / 5],
+    phrygian: [1, 16 / 15, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2, 32 / 15, 12 / 5],
+    lydian: [1, 9 / 8, 5 / 4, 45 / 32, 3 / 2, 5 / 3, 15 / 8, 2, 9 / 4, 5 / 2],
+    mixolydian: [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 9 / 5, 2, 9 / 4, 5 / 2],
+    aeolian: [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2, 9 / 4, 12 / 5], // Same as Natural Minor
+    locrian: [1, 16 / 15, 6 / 5, 4 / 3, 64 / 45, 8 / 5, 9 / 5, 2, 32 / 15, 12 / 5],
   };
 
   // Keyboard key mapping to scale degrees (0-indexed)
   const keyMap = {
-    lower: "zxcvbnm", // Maps to scale degrees 0-6
-    middle: "asdfghj", // Maps to scale degrees 0-6
-    upper: "qwertyu", // Maps to scale degrees 0-6 (Changed from ı to u for standard keys)
+    lower: "zxcvbnmöç.", // Maps to scale degrees 0-6
+    middle: "asdfghjklş", // Maps to scale degrees 0-6
+    upper: "qwertyuıop", // Maps to scale degrees 0-6 (Changed from ı to u for standard keys)
   };
 
   const getKeyInfo = (key) => {
